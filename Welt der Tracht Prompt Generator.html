@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welt der Tracht — Prompt-Generator</title>
+  <meta name="description" content="Professioneller Prompt-Generator für fotorealistische Trachten-Produktbilder mit ChatGPT / DALL-E">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300..700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       BASE RESET
+       ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      -moz-text-size-adjust: none;
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      scroll-behavior: smooth;
+      hanging-punctuation: first last;
+    }
+
+    img, picture, video, canvas, svg { display: block; max-width: 100%; height: auto; }
+    ul[role="list"], ol[role="list"] { list-style: none; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+    h1, h2, h3, h4, h5, h6 { text-wrap: balance; line-height: 1.15; }
+    p, li, figcaption { text-wrap: pretty; max-width: 72ch; }
+    button { cursor: pointer; background: none; border: none; }
+    table { border-collapse: collapse; width: 100%; }
+
+    :focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 3px;
+      border-radius: var(--radius-sm);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border-width: 0;
+    }
+
+    /* ============================================
+       DESIGN TOKENS
+       ============================================ */
+    :root {
+      /* Type Scale */
+      --text-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+      --text-sm:   clamp(0.875rem, 0.8rem  + 0.35vw, 1rem);
+      --text-base: clamp(1rem,     0.9rem  + 0.5vw,  1.125rem);
+      --text-lg:   clamp(1.125rem, 0.95rem + 0.85vw, 1.5rem);
+      --text-xl:   clamp(1.5rem,   1rem    + 1.5vw,  2.25rem);
+      --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
+
+      /* Spacing (4px grid) */
+      --space-1:  0.25rem;
+      --space-2:  0.5rem;
+      --space-3:  0.75rem;
+      --space-4:  1rem;
+      --space-5:  1.25rem;
+      --space-6:  1.5rem;
+      --space-8:  2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+      --space-24: 6rem;
+
+      /* Fonts */
+      --font-display: 'Cormorant Garamond', 'Georgia', serif;
+      --font-body: 'Inter', 'Helvetica Neue', sans-serif;
+
+      /* Radius */
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-full: 9999px;
+
+      /* Transition */
+      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+
+      /* Content widths */
+      --content-narrow: 640px;
+      --content-default: 960px;
+      --content-wide: 1200px;
+
+      /* ============================================
+         WELT DER TRACHT PALETTE
+         Warm cream + Deep Red + Charcoal Brown
+         ============================================ */
+
+      /* Surfaces */
+      --color-bg:               #faf7f2;
+      --color-surface:          #fdf9f4;
+      --color-surface-2:        #ffffff;
+      --color-surface-offset:   #f3ede4;
+      --color-surface-offset-2: #eae3d8;
+      --color-surface-dynamic:  #e0d8cb;
+      --color-divider:          #d4c9b8;
+      --color-border:           #c9bca8;
+
+      /* Text */
+      --color-text:         #2a2218;
+      --color-text-muted:   #6b5e4e;
+      --color-text-faint:   #a89a86;
+      --color-text-inverse: #faf7f2;
+
+      /* Primary (Deep Red / Bordeaux) */
+      --color-primary:           #8B0000;
+      --color-primary-hover:     #6e0000;
+      --color-primary-active:    #520000;
+      --color-primary-highlight: #f0ddd5;
+
+      /* Success */
+      --color-success:           #3d6b35;
+      --color-success-highlight: #d5e2d0;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px oklch(0.2 0.02 60 / 0.06);
+      --shadow-md: 0 4px 12px oklch(0.2 0.02 60 / 0.08);
+      --shadow-lg: 0 12px 32px oklch(0.2 0.02 60 / 0.12);
+    }
+
+    ::selection {
+      background: oklch(from var(--color-primary) l c h / 0.2);
+      color: var(--color-text);
+    }
+
+    body {
+      min-height: 100dvh;
+      line-height: 1.6;
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+    .site-header {
+      background: var(--color-surface);
+      border-bottom: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      padding: var(--space-6) var(--space-4);
+      text-align: center;
+    }
+
+    .header-inner {
+      max-width: var(--content-default);
+      margin-inline: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .header-logo-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .deer-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+    }
+
+    .header-brand {
+      font-family: var(--font-display);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--color-primary);
+      line-height: 1.1;
+    }
+
+    .header-subtitle {
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .header-tagline {
+      font-family: var(--font-display);
+      font-size: var(--text-sm);
+      font-style: italic;
+      color: var(--color-text-muted);
+      margin-top: var(--space-1);
+    }
+
+    @media (min-width: 768px) {
+      .deer-icon { width: 48px; height: 48px; }
+    }
+
+    /* ============================================
+       SKIP LINK
+       ============================================ */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: var(--space-4);
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      z-index: 1000;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      top: var(--space-2);
+    }
+
+    /* ============================================
+       MAIN CONTENT
+       ============================================ */
+    main {
+      flex: 1;
+      max-width: var(--content-default);
+      margin-inline: auto;
+      padding: var(--space-8) var(--space-4);
+      width: 100%;
+    }
+
+    /* ============================================
+       CATEGORY TABS
+       ============================================ */
+    .category-tabs {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      flex: 1;
+      min-width: 120px;
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid oklch(from var(--color-text) l c h / 0.12);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text-muted);
+      transition: background var(--transition-interactive),
+                  color var(--transition-interactive),
+                  border-color var(--transition-interactive),
+                  box-shadow var(--transition-interactive),
+                  transform var(--transition-interactive);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .category-tab:hover {
+      background: var(--color-surface-offset);
+      color: var(--color-text);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .category-tab:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .category-tab[aria-selected="true"] {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .category-tab[aria-selected="true"]:hover {
+      background: var(--color-primary-hover);
+      color: var(--color-text-inverse);
+    }
+
+    /* ============================================
+       FORM SECTIONS
+       ============================================ */
+    .form-section {
+      background: var(--color-surface);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.08);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .form-section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-divider);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-5);
+    }
+
+    @media (min-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .form-select,
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.15);
+      border-radius: var(--radius-md);
+      background: var(--color-surface-2);
+      font-size: var(--text-base);
+      color: var(--color-text);
+      transition: border-color var(--transition-interactive),
+                  box-shadow var(--transition-interactive);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b5e4e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-3) center;
+      background-size: 16px;
+      padding-right: var(--space-10);
+      cursor: pointer;
+    }
+
+    .form-select:focus,
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px oklch(from var(--color-primary) l c h / 0.12);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-select::placeholder,
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: var(--color-text-faint);
+    }
+
+    .form-hint {
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+    }
+
+    /* Hidden form fields with transition */
+    .field-hidden {
+      display: none;
+    }
+
+    /* ============================================
+       OUTPUT SECTION
+       ============================================ */
+    .output-section {
+      background: var(--color-surface-offset);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.1);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .output-title {
+      font-family: var(--font-display);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-4);
+    }
+
+    .output-box {
+      background: var(--color-surface-2);
+      border: 1px solid oklch(from var(--color-text) l c h / 0.1);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      line-height: 1.7;
+      color: var(--color-text);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      min-height: 180px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .output-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+
+    .btn-copy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-4) var(--space-8);
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: background var(--transition-interactive),
+                  transform var(--transition-interactive),
+                  box-shadow var(--transition-interactive);
+      min-height: 48px;
+      min-width: 220px;
+    }
+
+    .btn-copy:hover {
+      background: var(--color-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-copy:active {
+      background: var(--color-primary-active);
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-copy svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .output-hint {
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+      text-align: center;
+    }
+
+    /* ============================================
+       TOAST
+       ============================================ */
+    .toast {
+      position: fixed;
+      bottom: var(--space-8);
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: var(--color-success);
+      color: #fff;
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0;
+      transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+                  opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+    .site-footer {
+      text-align: center;
+      padding: var(--space-6) var(--space-4);
+      font-size: var(--text-xs);
+      color: var(--color-text-faint);
+      border-top: 1px solid var(--color-divider);
+      margin-top: auto;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 639px) {
+      .category-tab {
+        min-width: calc(50% - var(--space-1));
+        flex: none;
+      }
+      .form-section {
+        padding: var(--space-4);
+      }
+      .output-section {
+        padding: var(--space-4);
+      }
+      .btn-copy {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Zum Inhalt springen</a>
+
+<!-- ============================================
+     HEADER
+     ============================================ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-logo-row">
+      <!-- Stag Silhouette SVG -->
+      <svg class="deer-icon" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
+        <path d="M350 48c0 0-18 22-18 40s8 28 8 28l-24 18-8-20c0 0-16 24-16 44l-8 18-18-38c0-20-16-44-16-44l-8 20-24-18c0 0 8-10 8-28s-18-40-18-40c0 0-2 34-14 50l14 36-34-24c0 0-20 16-20 40l22-12 28 32c0 0-24 14-32 36 12-8 28-14 40-14l20 16c-38 8-68 40-80 78-8 28-6 58 4 84l10 28c4 10 4 22 0 32l-8 18h36l-6-22 6-28 14-44c2 8 4 20 4 34l-6 38-4 22h38l-2-28-2-32c0-12 2-26 6-38 2 8 4 18 6 28l6 36 4 34h36l-4-20-8-42c0-14 2-26 4-34l14 44 6 28-6 22h36l-8-18c-4-10-4-22 0-32l10-28c10-26 12-56 4-84-12-38-42-70-80-78l20-16c12 0 28 6 40 14-8-22-32-36-32-36l28-32 22 12c0-24-20-40-20-40l-34 24 14-36c-12-16-14-50-14-50z"/>
+      </svg>
+      <h1 class="header-brand">Welt der Tracht</h1>
+    </div>
+    <p class="header-subtitle">Prompt-Generator</p>
+    <p class="header-tagline">Tradition und Leidenschaft</p>
+  </div>
+</header>
+
+<!-- ============================================
+     MAIN CONTENT
+     ============================================ -->
+<main id="main-content">
+
+  <!-- CATEGORY TABS -->
+  <nav class="category-tabs" role="tablist" aria-label="Produktkategorie">
+    <button class="category-tab" role="tab" aria-selected="true" data-category="damen" id="tab-damen" aria-controls="panel-form">Damen</button>
+    <button class="category-tab" role="tab" aria-selected="false" data-category="herren" id="tab-herren" aria-controls="panel-form">Herren</button>
+    <button class="category-tab" role="tab" aria-selected="false" data-category="kinder" id="tab-kinder" aria-controls="panel-form">Kinder</button>
+    <button class="category-tab" role="tab" aria-selected="false" data-category="accessoires" id="tab-accessoires" aria-controls="panel-form">Accessoires</button>
+  </nav>
+
+  <!-- FORM -->
+  <form id="panel-form" role="tabpanel" aria-label="Produktkonfiguration" onsubmit="return false;">
+
+    <!-- SECTION: Product Details -->
+    <section class="form-section" id="section-product">
+      <h2 class="form-section-title">Produktdetails</h2>
+      <div class="form-grid">
+
+        <!-- DAMEN fields -->
+        <div class="form-group" id="fg-damen-produkttyp">
+          <label class="form-label" for="damen-produkttyp">Produkttyp</label>
+          <select class="form-select" id="damen-produkttyp">
+            <option value="Dirndl">Dirndl</option>
+            <option value="Mieder">Mieder (Bodice)</option>
+            <option value="Bluse">Bluse</option>
+            <option value="Trachtenrock">Trachtenrock</option>
+            <option value="Trachtenhose">Trachtenhose</option>
+            <option value="Janker/Jacke">Janker / Jacke</option>
+            <option value="Schürze">Schürze</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-dirndllaenge">
+          <label class="form-label" for="damen-dirndllaenge">Dirndl-Länge</label>
+          <select class="form-select" id="damen-dirndllaenge">
+            <option value="50 cm (Mini)">50 cm (Mini)</option>
+            <option value="60 cm (Midi kurz)">60 cm (Midi kurz)</option>
+            <option value="65 cm (Midi)" selected>65 cm (Midi)</option>
+            <option value="70 cm (Midi lang)">70 cm (Midi lang)</option>
+            <option value="80 cm (Lang)">80 cm (Lang)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-hauptfarbe">
+          <label class="form-label" for="damen-hauptfarbe">Hauptfarbe</label>
+          <select class="form-select" id="damen-hauptfarbe">
+            <option value="Bordeaux">Bordeaux</option>
+            <option value="Tannengrün">Tannengrün</option>
+            <option value="Marine (Navy)">Marine (Navy)</option>
+            <option value="Schwarz">Schwarz</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Rot">Rot</option>
+            <option value="Natur (Creme)">Natur (Creme)</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Rosa">Rosa</option>
+            <option value="Flieder">Flieder</option>
+            <option value="Weinrot">Weinrot</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-zweitfarbe">
+          <label class="form-label" for="damen-zweitfarbe">Zweitfarbe / Schürzenfarbe</label>
+          <select class="form-select" id="damen-zweitfarbe">
+            <option value="Bordeaux">Bordeaux</option>
+            <option value="Tannengrün">Tannengrün</option>
+            <option value="Marine (Navy)">Marine (Navy)</option>
+            <option value="Schwarz">Schwarz</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Rot">Rot</option>
+            <option value="Natur (Creme)" selected>Natur (Creme)</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Rosa">Rosa</option>
+            <option value="Flieder">Flieder</option>
+            <option value="Weinrot">Weinrot</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-material">
+          <label class="form-label" for="damen-material">Material</label>
+          <select class="form-select" id="damen-material">
+            <option value="Baumwolle">Baumwolle</option>
+            <option value="Leinen">Leinen</option>
+            <option value="Baumwolle-Leinen-Mix">Baumwolle-Leinen-Mix</option>
+            <option value="Samt">Samt</option>
+            <option value="Seide">Seide</option>
+            <option value="Brokat">Brokat</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-schuerzentyp">
+          <label class="form-label" for="damen-schuerzentyp">Schürzen-Typ</label>
+          <select class="form-select" id="damen-schuerzentyp">
+            <option value="Bindeschürze (klassisch)">Bindeschürze (klassisch)</option>
+            <option value="Schürze mit Schließe">Schürze mit Schließe</option>
+            <option value="Glitzer-Schürze">Glitzer-Schürze</option>
+            <option value="Spitzenschürze">Spitzenschürze</option>
+            <option value="Ohne Schürze">Ohne Schürze</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-blusenstil">
+          <label class="form-label" for="damen-blusenstil">Blusen-Stil</label>
+          <select class="form-select" id="damen-blusenstil">
+            <option value="Weiße Spitzenbluse (halblange Ärmel)">Weiße Spitzenbluse (halblange Ärmel)</option>
+            <option value="Weiße Bluse (lange Ärmel)">Weiße Bluse (lange Ärmel)</option>
+            <option value="Carmenbluse (schulterfrei)">Carmenbluse (schulterfrei)</option>
+            <option value="Stehkragenbluse">Stehkragenbluse</option>
+            <option value="Keine Bluse sichtbar">Keine Bluse sichtbar</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-stickerei">
+          <label class="form-label" for="damen-stickerei">Stickerei / Muster</label>
+          <select class="form-select" id="damen-stickerei">
+            <option value="Keine">Keine</option>
+            <option value="Blumenstickerei">Blumenstickerei</option>
+            <option value="Edelweiß-Motiv">Edelweiß-Motiv</option>
+            <option value="Hirsch-Motiv">Hirsch-Motiv</option>
+            <option value="Herzstickerei">Herzstickerei</option>
+            <option value="Ranken-Muster">Ranken-Muster</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="fg-damen-schmuck">
+          <label class="form-label" for="damen-schmuck">Schmuck / Accessoire</label>
+          <select class="form-select" id="damen-schmuck">
+            <option value="Keiner">Keiner</option>
+            <option value="Herz-Halskette Silber">Herz-Halskette Silber</option>
+            <option value="Charivari">Charivari</option>
+            <option value="Edelweiß-Brosche">Edelweiß-Brosche</option>
+            <option value="Perlenkette">Perlenkette</option>
+          </select>
+        </div>
+
+        <!-- HERREN fields -->
+        <div class="form-group field-hidden" id="fg-herren-produkttyp">
+          <label class="form-label" for="herren-produkttyp">Produkttyp</label>
+          <select class="form-select" id="herren-produkttyp">
+            <option value="Lederhose kurz">Lederhose kurz</option>
+            <option value="Lederhose knielang">Lederhose knielang</option>
+            <option value="Lederhose halblang">Lederhose halblang</option>
+            <option value="Trachtenhemd">Trachtenhemd</option>
+            <option value="Trachtenweste">Trachtenweste</option>
+            <option value="Janker">Janker</option>
+            <option value="Haferlschuhe">Haferlschuhe</option>
+            <option value="Loferl">Loferl</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-herren-lederfarbe">
+          <label class="form-label" for="herren-lederfarbe">Leder-Farbe</label>
+          <select class="form-select" id="herren-lederfarbe">
+            <option value="Natur (Hellbraun)">Natur (Hellbraun)</option>
+            <option value="Kastanie (Dunkelbraun)">Kastanie (Dunkelbraun)</option>
+            <option value="Schwarz">Schwarz</option>
+            <option value="Grau">Grau</option>
+            <option value="Wildbock">Wildbock</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-herren-material">
+          <label class="form-label" for="herren-material">Material</label>
+          <select class="form-select" id="herren-material">
+            <option value="Hirschleder">Hirschleder</option>
+            <option value="Ziegenleder">Ziegenleder</option>
+            <option value="Rindsvelour">Rindsvelour</option>
+            <option value="Baumwolle">Baumwolle</option>
+            <option value="Leinen">Leinen</option>
+            <option value="Loden">Loden</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-herren-hemdstil">
+          <label class="form-label" for="herren-hemdstil">Hemd-Stil</label>
+          <select class="form-select" id="herren-hemdstil">
+            <option value="Weiß klassisch">Weiß klassisch</option>
+            <option value="Kariert (rot-weiß)">Kariert (rot-weiß)</option>
+            <option value="Kariert (blau-weiß)">Kariert (blau-weiß)</option>
+            <option value="Kariert (grün-weiß)">Kariert (grün-weiß)</option>
+            <option value="Stehkragen weiß">Stehkragen weiß</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-herren-weste">
+          <label class="form-label" for="herren-weste">Weste</label>
+          <select class="form-select" id="herren-weste">
+            <option value="Keine">Keine</option>
+            <option value="Samtweste">Samtweste</option>
+            <option value="Strickweste">Strickweste</option>
+            <option value="Trachtenweste mit Stickerei">Trachtenweste mit Stickerei</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-herren-stickerei">
+          <label class="form-label" for="herren-stickerei">Stickerei</label>
+          <select class="form-select" id="herren-stickerei">
+            <option value="Keine">Keine</option>
+            <option value="Eichenlaubstickerei">Eichenlaubstickerei</option>
+            <option value="Hirsch-Motiv">Hirsch-Motiv</option>
+            <option value="Edelweiß">Edelweiß</option>
+            <option value="Klassisch dezent">Klassisch dezent</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-herren-accessoire">
+          <label class="form-label" for="herren-accessoire">Accessoire</label>
+          <select class="form-select" id="herren-accessoire">
+            <option value="Keiner">Keiner</option>
+            <option value="Charivari">Charivari</option>
+            <option value="Trachtengürtel">Trachtengürtel</option>
+            <option value="Haferlschuhe">Haferlschuhe</option>
+            <option value="Loferl">Loferl</option>
+            <option value="Trachtenhut">Trachtenhut</option>
+          </select>
+        </div>
+
+        <!-- KINDER fields -->
+        <div class="form-group field-hidden" id="fg-kinder-typ">
+          <label class="form-label" for="kinder-typ">Typ</label>
+          <select class="form-select" id="kinder-typ">
+            <option value="Kinderdirndl (Madl)">Kinderdirndl (Madl)</option>
+            <option value="Kinder-Lederhose (Buam)">Kinder-Lederhose (Buam)</option>
+            <option value="Kinderhemd">Kinderhemd</option>
+            <option value="Kinderweste">Kinderweste</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-kinder-hauptfarbe">
+          <label class="form-label" for="kinder-hauptfarbe">Hauptfarbe</label>
+          <select class="form-select" id="kinder-hauptfarbe">
+            <option value="Bordeaux">Bordeaux</option>
+            <option value="Tannengrün">Tannengrün</option>
+            <option value="Marine (Navy)">Marine (Navy)</option>
+            <option value="Schwarz">Schwarz</option>
+            <option value="Anthrazit">Anthrazit</option>
+            <option value="Rot">Rot</option>
+            <option value="Natur (Creme)">Natur (Creme)</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Rosa">Rosa</option>
+            <option value="Flieder">Flieder</option>
+            <option value="Weinrot">Weinrot</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width field-hidden" id="fg-kinder-details">
+          <label class="form-label" for="kinder-details">Details</label>
+          <input type="text" class="form-input" id="kinder-details" placeholder="z.B. Rüschen, Hosenträger, Stickerei..." maxlength="200">
+        </div>
+
+        <!-- ACCESSOIRES fields -->
+        <div class="form-group field-hidden" id="fg-acc-typ">
+          <label class="form-label" for="acc-typ">Typ</label>
+          <select class="form-select" id="acc-typ">
+            <option value="Charivari">Charivari</option>
+            <option value="Trachtentasche">Trachtentasche</option>
+            <option value="Trachtengürtel">Trachtengürtel</option>
+            <option value="Dirndl-BH">Dirndl-BH</option>
+            <option value="Tuch/Schal">Tuch / Schal</option>
+            <option value="Taschenmesser">Taschenmesser</option>
+          </select>
+        </div>
+
+        <div class="form-group field-hidden" id="fg-acc-material">
+          <label class="form-label" for="acc-material">Material</label>
+          <select class="form-select" id="acc-material">
+            <option value="Leder">Leder</option>
+            <option value="Silber">Silber</option>
+            <option value="Messing">Messing</option>
+            <option value="Stoff">Stoff</option>
+            <option value="Hirschhorn">Hirschhorn</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width field-hidden" id="fg-acc-details">
+          <label class="form-label" for="acc-details">Details</label>
+          <input type="text" class="form-input" id="acc-details" placeholder="z.B. Prägung, Verzierung, Farbe..." maxlength="200">
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: Photography Settings -->
+    <section class="form-section" id="section-photo">
+      <h2 class="form-section-title">Fotografie-Einstellungen</h2>
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label class="form-label" for="verwendungszweck">Verwendungszweck</label>
+          <select class="form-select" id="verwendungszweck">
+            <option value="webshop">Webshop-Produktfoto</option>
+            <option value="social">Social Media / Werbung</option>
+            <option value="katalog">Katalog-Doppelseite</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="model-typ">Model-Typ</label>
+          <select class="form-select" id="model-typ">
+            <option value="Sympathische junge Frau (20-30)">Sympathische junge Frau (20–30)</option>
+            <option value="Elegante Frau (30-45)">Elegante Frau (30–45)</option>
+            <option value="Frau im Madl-Stil (bayerisch, natürlich)">Frau im Madl-Stil (bayerisch, natürlich)</option>
+            <option value="Kerniger junger Mann (25-35)">Kerniger junger Mann (25–35)</option>
+            <option value="Eleganter Mann (35-50)">Eleganter Mann (35–50)</option>
+            <option value="Fröhliches Mädchen (Madl, 6-12)">Fröhliches Mädchen (Madl, 6–12)</option>
+            <option value="Fröhlicher Bub (Buam, 6-12)">Fröhlicher Bub (Buam, 6–12)</option>
+            <option value="kein-model">Kein Model (Produkt-Flatlay / Mannequin)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="hintergrund">Hintergrund / Szenerie</label>
+          <select class="form-select" id="hintergrund">
+            <!-- Options populated dynamically -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="lichtstimmung">Lichtstimmung</label>
+          <select class="form-select" id="lichtstimmung">
+            <option value="Helles, gleichmäßiges Studiolicht">Helles, gleichmäßiges Studiolicht</option>
+            <option value="Warmes Sonnenlicht (Golden Hour)">Warmes Sonnenlicht (Golden Hour)</option>
+            <option value="Natürliches Tageslicht (draußen)">Natürliches Tageslicht (draußen)</option>
+            <option value="Weiches Morgenlicht">Weiches Morgenlicht</option>
+            <option value="Dramatisches Seitenlicht">Dramatisches Seitenlicht</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="bildausschnitt">Bildausschnitt</label>
+          <select class="form-select" id="bildausschnitt">
+            <option value="Ganzkörperaufnahme">Ganzkörperaufnahme</option>
+            <option value="Dreiviertel-Aufnahme (bis Knie)">Dreiviertel-Aufnahme (bis Knie)</option>
+            <option value="Portrait (Hüfte aufwärts)">Portrait (Hüfte aufwärts)</option>
+            <option value="Detail-Aufnahme (Nahaufnahme Stoff/Stickerei)">Detail-Aufnahme (Nahaufnahme)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="pose">Pose</label>
+          <select class="form-select" id="pose">
+            <option value="Frontal stehend, natürlich">Frontal stehend, natürlich</option>
+            <option value="Leichte 45°-Drehung">Leichte 45°-Drehung</option>
+            <option value="Seitlich mit Blick zur Kamera">Seitlich mit Blick zur Kamera</option>
+            <option value="Sitzend auf Holzbank">Sitzend auf Holzbank</option>
+            <option value="In Bewegung (gehend)">In Bewegung (gehend)</option>
+          </select>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION: Additional Details -->
+    <section class="form-section" id="section-details">
+      <h2 class="form-section-title">Zusätzliche Details</h2>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label class="form-label" for="freitext">Besondere Details</label>
+          <textarea class="form-textarea" id="freitext" placeholder="z.B. spezielle Knöpfe, Borten, Muster, Farbverläufe..." maxlength="200"></textarea>
+          <span class="form-hint">Maximal 200 Zeichen</span>
+        </div>
+      </div>
+    </section>
+
+  </form>
+
+  <!-- OUTPUT -->
+  <section class="output-section" id="section-output" aria-live="polite">
+    <h2 class="output-title">Generierter Prompt</h2>
+    <div class="output-box" id="prompt-output" role="status"></div>
+    <div class="output-actions">
+      <button class="btn-copy" id="btn-copy" type="button" aria-label="Prompt in Zwischenablage kopieren">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        Prompt kopieren
+      </button>
+      <p class="output-hint">Prompt zusammen mit einem Referenzfoto in ChatGPT einfügen</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast" aria-live="assertive">Prompt kopiert!</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  &copy; 2026 Welt der Tracht &mdash; Prompt-Generator Tool
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ============================================
+  // FIELD VISIBILITY CONFIG
+  // ============================================
+  const categoryFields = {
+    damen: [
+      'fg-damen-produkttyp', 'fg-damen-dirndllaenge', 'fg-damen-hauptfarbe',
+      'fg-damen-zweitfarbe', 'fg-damen-material', 'fg-damen-schuerzentyp',
+      'fg-damen-blusenstil', 'fg-damen-stickerei', 'fg-damen-schmuck'
+    ],
+    herren: [
+      'fg-herren-produkttyp', 'fg-herren-lederfarbe', 'fg-herren-material',
+      'fg-herren-hemdstil', 'fg-herren-weste', 'fg-herren-stickerei',
+      'fg-herren-accessoire'
+    ],
+    kinder: [
+      'fg-kinder-typ', 'fg-kinder-hauptfarbe', 'fg-kinder-details'
+    ],
+    accessoires: [
+      'fg-acc-typ', 'fg-acc-material', 'fg-acc-details'
+    ]
+  };
+
+  const allFieldIds = Object.values(categoryFields).flat();
+  let currentCategory = 'damen';
+
+  // ============================================
+  // BACKGROUND OPTIONS
+  // ============================================
+  const hintergrundOptions = {
+    webshop: [
+      'Weißer Studiohintergrund (clean)',
+      'Hellgrauer Studiohintergrund',
+      'Cremefarbener Hintergrund'
+    ],
+    social: [
+      'Almwiese mit Bergpanorama',
+      'Bayerischer See (Ufer)',
+      'Rustikale Holzhütte',
+      'Biergarten',
+      'Münchner Altstadt',
+      'Blumenwiese'
+    ],
+    katalog: [
+      'Schloss-Kulisse',
+      'Historisches Wirtshaus',
+      'Berggipfel bei Sonnenaufgang',
+      'Eleganter Festsaal'
+    ]
+  };
+
+  // ============================================
+  // DOM REFS
+  // ============================================
+  const $ = id => document.getElementById(id);
+  const tabs = document.querySelectorAll('.category-tab');
+  const hintergrundSel = $('hintergrund');
+  const verwendungSel = $('verwendungszweck');
+  const promptOutput = $('prompt-output');
+  const btnCopy = $('btn-copy');
+  const toast = $('toast');
+
+  // ============================================
+  // CATEGORY SWITCHING
+  // ============================================
+  function switchCategory(cat) {
+    currentCategory = cat;
+
+    // Update tabs
+    tabs.forEach(tab => {
+      tab.setAttribute('aria-selected', tab.dataset.category === cat ? 'true' : 'false');
+    });
+
+    // Show/hide fields
+    allFieldIds.forEach(id => {
+      const el = $(id);
+      if (el) el.classList.add('field-hidden');
+    });
+
+    const dirndlField = $('fg-damen-dirndllaenge');
+
+    categoryFields[cat].forEach(id => {
+      const el = $(id);
+      if (el) el.classList.remove('field-hidden');
+    });
+
+    // Handle Dirndl-Länge conditional visibility
+    updateDirndlVisibility();
+
+    // Handle Herren Leder-Farbe conditional visibility
+    updateHerrenLederVisibility();
+
+    generatePrompt();
+  }
+
+  function updateDirndlVisibility() {
+    const dirndlField = $('fg-damen-dirndllaenge');
+    if (currentCategory === 'damen') {
+      const produkttyp = $('damen-produkttyp').value;
+      if (produkttyp === 'Dirndl') {
+        dirndlField.classList.remove('field-hidden');
+      } else {
+        dirndlField.classList.add('field-hidden');
+      }
+    }
+  }
+
+  function updateHerrenLederVisibility() {
+    const lederField = $('fg-herren-lederfarbe');
+    if (currentCategory === 'herren') {
+      const produkttyp = $('herren-produkttyp').value;
+      const isLeder = produkttyp.startsWith('Lederhose');
+      if (isLeder) {
+        lederField.classList.remove('field-hidden');
+      } else {
+        lederField.classList.add('field-hidden');
+      }
+    }
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchCategory(tab.dataset.category));
+  });
+
+  // ============================================
+  // BACKGROUND OPTIONS UPDATE
+  // ============================================
+  function updateHintergrund() {
+    const zweck = verwendungSel.value;
+    const options = hintergrundOptions[zweck] || [];
+    hintergrundSel.innerHTML = '';
+    options.forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt;
+      o.textContent = opt;
+      hintergrundSel.appendChild(o);
+    });
+    generatePrompt();
+  }
+
+  verwendungSel.addEventListener('change', updateHintergrund);
+
+  // ============================================
+  // DIRNDL + HERREN CONDITIONAL
+  // ============================================
+  $('damen-produkttyp').addEventListener('change', () => {
+    updateDirndlVisibility();
+    generatePrompt();
+  });
+
+  $('herren-produkttyp').addEventListener('change', () => {
+    updateHerrenLederVisibility();
+    generatePrompt();
+  });
+
+  // ============================================
+  // PROMPT GENERATION
+  // ============================================
+  function val(id) {
+    const el = $(id);
+    if (!el) return '';
+    return el.value || '';
+  }
+
+  function generatePrompt() {
+    const zweck = val('verwendungszweck');
+    const modelTyp = val('model-typ');
+    const hintergrund = val('hintergrund');
+    const licht = val('lichtstimmung');
+    const ausschnitt = val('bildausschnitt');
+    const poseVal = val('pose');
+    const freitext = val('freitext').trim();
+
+    let produktBeschreibung = '';
+    let isAccessoire = false;
+
+    // Build product description based on category
+    if (currentCategory === 'damen') {
+      const typ = val('damen-produkttyp');
+      const farbe = val('damen-hauptfarbe');
+      const material = val('damen-material');
+      const stickerei = val('damen-stickerei');
+      const schuerze = val('damen-schuerzentyp');
+      const bluse = val('damen-blusenstil');
+      const zweitfarbe = val('damen-zweitfarbe');
+      const schmuck = val('damen-schmuck');
+
+      let laengeText = '';
+      if (typ === 'Dirndl') {
+        laengeText = ', ' + val('damen-dirndllaenge');
+      }
+
+      produktBeschreibung = `PRODUKT: ${typ}${laengeText} in ${farbe}. Material: ${material}.`;
+
+      if (stickerei !== 'Keine') {
+        produktBeschreibung += ` Verzierung: ${stickerei}.`;
+      }
+
+      if (typ === 'Dirndl' || typ === 'Trachtenrock') {
+        if (schuerze !== 'Ohne Schürze') {
+          produktBeschreibung += ` Schürze: ${schuerze} in ${zweitfarbe}.`;
+        }
+      }
+
+      if (typ === 'Dirndl' || typ === 'Mieder') {
+        if (bluse !== 'Keine Bluse sichtbar') {
+          produktBeschreibung += ` Bluse: ${bluse}.`;
+        }
+      }
+
+      if (schmuck !== 'Keiner') {
+        produktBeschreibung += ` Schmuck: ${schmuck}.`;
+      }
+
+    } else if (currentCategory === 'herren') {
+      const typ = val('herren-produkttyp');
+      const material = val('herren-material');
+      const stickerei = val('herren-stickerei');
+      const hemdstil = val('herren-hemdstil');
+      const weste = val('herren-weste');
+      const accessoire = val('herren-accessoire');
+      const isLeder = typ.startsWith('Lederhose');
+      const lederfarbe = val('herren-lederfarbe');
+
+      produktBeschreibung = `PRODUKT: ${typ}`;
+      if (isLeder) {
+        produktBeschreibung += ` in ${lederfarbe}`;
+      }
+      produktBeschreibung += `. Material: ${material}.`;
+
+      if (stickerei !== 'Keine') {
+        produktBeschreibung += ` Stickerei: ${stickerei}.`;
+      }
+
+      if (isLeder || typ === 'Trachtenweste' || typ === 'Janker') {
+        if (hemdstil) {
+          produktBeschreibung += ` Dazu: Trachtenhemd ${hemdstil}.`;
+        }
+      }
+
+      if (weste !== 'Keine') {
+        produktBeschreibung += ` Weste: ${weste}.`;
+      }
+
+      if (accessoire !== 'Keiner') {
+        produktBeschreibung += ` Accessoire: ${accessoire}.`;
+      }
+
+    } else if (currentCategory === 'kinder') {
+      const typ = val('kinder-typ');
+      const farbe = val('kinder-hauptfarbe');
+      const details = val('kinder-details').trim();
+
+      produktBeschreibung = `PRODUKT: ${typ} in ${farbe}.`;
+      if (details) {
+        produktBeschreibung += ` Details: ${details}.`;
+      }
+
+    } else if (currentCategory === 'accessoires') {
+      isAccessoire = true;
+      const typ = val('acc-typ');
+      const material = val('acc-material');
+      const details = val('acc-details').trim();
+
+      produktBeschreibung = `PRODUKT: ${typ} aus ${material}.`;
+      if (details) {
+        produktBeschreibung += ` ${details}.`;
+      }
+    }
+
+    if (freitext) {
+      produktBeschreibung += ` ${freitext}.`;
+    }
+
+    // Model section
+    let modelSection = '';
+    const isKeinModel = modelTyp === 'kein-model';
+
+    if (isKeinModel) {
+      if (zweck === 'webshop') {
+        modelSection = 'Das Kleidungsstück wird als Flatlay auf einer hellen, sauberen Oberfläche präsentiert oder ist auf einer Schneiderpuppe/Mannequin drapiert.';
+      } else {
+        modelSection = 'Das Kleidungsstück ist auf einer Schneiderpuppe/Mannequin drapiert oder wird als stilvolles Flatlay auf einer rustikalen Holzoberfläche präsentiert.';
+      }
+    } else {
+      modelSection = `MODEL: ${modelTyp} trägt das Kleidungsstück.`;
+      if (currentCategory === 'kinder') {
+        const kinderTyp = val('kinder-typ');
+        if (kinderTyp.includes('Madl')) {
+          modelSection = `MODEL: Fröhliches Kindermodel (Madl) trägt das Kleidungsstück.`;
+        } else if (kinderTyp.includes('Buam')) {
+          modelSection = `MODEL: Fröhliches Kindermodel (Bub) trägt das Kleidungsstück.`;
+        }
+      }
+    }
+
+    // Pose section (only if model)
+    let poseSection = '';
+    if (!isKeinModel) {
+      poseSection = `POSE: ${poseVal}, ${ausschnitt}.`;
+    } else if (isAccessoire) {
+      poseSection = `BILDAUSSCHNITT: ${ausschnitt}, Nahaufnahme des Accessoires.`;
+    } else {
+      poseSection = `BILDAUSSCHNITT: ${ausschnitt}.`;
+    }
+
+    // Camera section
+    let kameraExtra = '';
+    if (zweck === 'webshop') {
+      kameraExtra = 'Gleichmäßige Ausleuchtung, neutraler Hintergrund.';
+    } else {
+      kameraExtra = 'Cinematic depth of field, natürliche Atmosphäre.';
+    }
+
+    // Intro text
+    let introText = 'FOTOREALISTISCHES PRODUKTFOTO für einen professionellen Trachten-Katalog.';
+    if (isAccessoire) {
+      introText = 'FOTOREALISTISCHES PRODUKTFOTO eines Trachten-Accessoires für einen professionellen Katalog.';
+    }
+
+    // Build full prompt
+    const prompt = `${introText}
+
+${produktBeschreibung}
+
+${modelSection}
+${poseSection}
+
+SZENE: ${hintergrund}.
+LICHT: ${licht}.
+
+KAMERA: Aufgenommen mit einer Sony A7R IV, 85mm Objektiv, f/2.8. ${kameraExtra}
+
+STIL: Authentische Katalog-Fotografie wie in einem hochwertigen Trachten-Modekatalog. Natürliche Hauttextur, kein Weichzeichner, kein Airbrush-Look. Die Kleidung muss exakt wie beschrieben aussehen – keine kreativen Abweichungen bei Farben, Mustern oder Schnitten.
+WICHTIG: Fotorealistisch. Keine KI-typischen Artefakte. Das Bild soll wie ein echtes, unbearbeitetes Katalogfoto wirken.`;
+
+    promptOutput.textContent = prompt;
+  }
+
+  // ============================================
+  // COPY FUNCTIONALITY
+  // ============================================
+  let toastTimeout = null;
+
+  btnCopy.addEventListener('click', async () => {
+    const text = promptOutput.textContent;
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;left:-9999px;';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(e2) {}
+      document.body.removeChild(ta);
+    }
+
+    // Show toast
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toast.classList.add('show');
+    toastTimeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2000);
+  });
+
+  // ============================================
+  // LIVE UPDATE — Attach listeners to all form elements
+  // ============================================
+  document.querySelectorAll('.form-select, .form-input, .form-textarea').forEach(el => {
+    el.addEventListener('change', generatePrompt);
+    el.addEventListener('input', generatePrompt);
+  });
+
+  // ============================================
+  // INIT
+  // ============================================
+  updateHintergrund();
+  switchCategory('damen');
+
+})();
+</script>
+
+</body>
+</html>
